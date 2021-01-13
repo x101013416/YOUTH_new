@@ -1,5 +1,4 @@
-# This is a basic workname: 中青看点
-
+name: 中青浏览赚
 on:
   workflow_dispatch:
   schedule:
