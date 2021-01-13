@@ -26,21 +26,21 @@ jobs:
         run: |
           npm install
           
-      - name: '运行 【中青自动阅读一45】'
+      - name: '运行 【中青自动阅读一45H】'
         if: env.YOUTH_READ
         run: |
           node Youth_Read.js
         env:
           YOUTH_READ: ${{ secrets.YOUTH_READ }}
 
-      - name: '运行 【中青自动阅读二50】'
+      - name: '运行 【中青自动阅读二50W】'
         if: env.YOUTH_READ2
         run: |
           node Youth_Read.js
         env:
           YOUTH_READ: ${{ secrets.YOUTH_READ2 }}
           
-      - name: '运行 【中青自动阅读三43】'
+      - name: '运行 【中青自动阅读三43S】'
         if: env.YOUTH_READ3
         run: |
           node Youth_Read.js
