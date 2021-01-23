@@ -28,7 +28,7 @@ jobs:
       - name: '运行 【txn自动阅读1】'
         if: env.TX_CK
         run: |
-          node Task/txnews_task.js
+          node txn_au.js
         env:
           TX_CK: ${{ secrets.TX_CK }}
           TX_READ: ${{ secrets.TX_READ }}
@@ -37,7 +37,7 @@ jobs:
       - name: '运行 【txn自动阅读2】'
         if: env.TX_CK2
         run: |
-          node Task/txnews_task.js
+          node txn_au.js
         env:
           TX_CK: ${{ secrets.TX_CK2 }}
           TX_READ: ${{ secrets.TX_READ2 }}
@@ -46,7 +46,7 @@ jobs:
       - name: '运行 【txn自动阅读3】'
         if: env.TX_CK3
         run: |
-          node Task/txnews_task.js
+          node txn_au.js
         env:
           TX_CK: ${{ secrets.TX_CK3 }}
           TX_READ: ${{ secrets.TX_READ3 }}
