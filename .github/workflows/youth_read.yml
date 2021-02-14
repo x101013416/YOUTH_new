@@ -32,6 +32,7 @@ jobs:
           node Youth_Read.js
         env:
           YOUTH_READ: ${{ secrets.YOUTH_READ }}
+          YOUTH_TIME: ${{ secrets.YOUTH_TIME }}
 
       - name: '运行 【中青自动阅读二50W】'
         if: env.YOUTH_READ2
