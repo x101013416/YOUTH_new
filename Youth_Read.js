@@ -93,7 +93,7 @@ function readTime() {
         $.post(batHost('user/stay.json',timebodyVal), (error, resp, data) => {
             let timeres = JSON.parse(data)
             if (timeres.error_code == 0) {
-                readtimes = timeres.time / 60
+                readtimes = timeres.time / 168
               $.log(`阅读时长共计` + Math.floor(readtimes) + `分钟`)
             }
             resolve()
