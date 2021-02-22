@@ -4,7 +4,6 @@ Github Actions使用方法见[@lxk0301](https://raw.githubusercontent.com/lxk030
 请自行抓包，阅读文章和看视频，倒计时转一圈显示青豆到账即可，多看几篇文章和视频，获得更多包数据，抓包地址为"https://ios.baertt.com/v5/article/complete.json"，在Github Actions中的Secrets新建name为'YOUTH_READ'的一个值，拷贝抓包的请求体到下面Value的文本框中，添加的请求体越多，获得青豆次数越多，本脚本不包含任何推送通知
 多个请求体时用'&'号或者换行隔开" ‼️
 */
-
 const $ = new Env("中青看点阅读")
 //const notify = $.isNode() ? require('./sendNotify') : '';
 let ReadArr = [], timebodyVal ="";
@@ -15,7 +14,7 @@ if (isGetbody = typeof $request !==`undefined`) {
    Getbody();
    $done()
 } 
-let lastIndex = $.getdata('zq_lastbody')
+let lastIndex = $.getdata('zqbody_index')
 if(!$.isNode()&&!YouthBody==true){
   $.log("您未获取阅读请求，请求阅读后获取")
   $.msg($.name, "您未获取阅读请求，请求阅读后获取","",{'open-url':"https://kandian.youth.cn/u/8S9DO"})
@@ -33,8 +32,6 @@ if(!$.isNode()&&!YouthBody==true){
     } else {
       YouthBody = [process.env.YOUTH_READ]
     }
-    console.log(` ============ 脚本执行 - 北京时间 (UTC + 8)：${new Date(Date.now() + 8 * 60 * 60 * 1000).toLocaleString()} =============\n`)
-
   } else if (!$.isNode() && YouthBody.indexOf("&") > -1) {
     YouthBody = YouthBody.split("&")
   };
@@ -43,6 +40,10 @@ if(!$.isNode()&&!YouthBody==true){
       ReadArr.push(YouthBody[item])
     }
   })
+    timeZone = new Date().getTimezoneOffset() / 60;
+    timestamp = Date.now()+ (8+timeZone) * 60 * 60 * 1000;
+    bjTime = new Date(timestamp).toLocaleString('zh',{hour12:false,timeZoneName: 'long'});
+    console.log(`\n === 脚本执行 ${bjTime} ===\n`);
   $.log("\n  您共获取"+ReadArr.length+"次阅读请求，任务开始\n")
 }
       
@@ -55,17 +56,19 @@ if(!$.isNode()&&!YouthBody==true){
 let indexLast = $.getdata('zqbody_index');
  $.begin = indexLast ? parseInt(indexLast,10) : 1;
  $.index = 0;
+ $.log( "上次运行到第"+$.begin+"次终止，本次从"+(parseInt($.begin)+1)+"次开始");
   for ( var i = indexLast ? indexLast:0; i < ReadArr.length; i++) {
     if (ReadArr[i]) {
       articlebody = ReadArr[i];
        $.index =  $.index + 1;
-    console.log(`-------------------------\n\n开始中青看点第${$.index}次阅读`);
-      await $.wait(1000);
-      await AutoRead();
+       $.log(`-------------------------\n\n开始中青看点第${$.index}次阅读`);
+       await $.wait(10000);
+       await AutoRead();
     };
  }
    $.log("本次共阅读"+artsnum+"次资讯，共获得"+readscore+"青豆\n观看"+videosnum+"次视频，获得"+videoscore+"青豆(不含0青豆次数)\n")
-   console.log(`-------------------------\n\n中青看点共完成${$.index}次阅读，共计获得${readscore+videoscore}个青豆，阅读请求全部结束`)
+   console.log(`-------------------------\n\n中青看点共完成${$.index}次阅读，共计获得${readscore+videoscore}个青豆，阅读请求全部结束`);
+   $.msg($.name, `本次运行共完成${$.index}次阅读，共计获得${readscore+videoscore}个青豆`)
 })()
   .catch((e) => $.logErr(e))
   .finally(() => $.done())
@@ -84,10 +87,10 @@ function AutoRead() {
         if(data.indexOf("ctype")>-1){
          if(readres.items.ctype==0){
           artsnum += 1
-          readscore += readres.items.read_score;
+          readscore += parseInt(readres.items.read_score);
          } else if(readres.items.ctype==3){
           videosnum += 1
-          videoscore += readres.items.read_score;
+          videoscore += parseInt(readres.items.read_score);
          } 
         }
         if ($.index % 2 == 0) {
@@ -101,10 +104,10 @@ function AutoRead() {
         if($.index==ReadArr.length){
         $.log($.index+"次任务已全部完成，即将结束")
         } else {
-        await $.wait(28000);
+        await $.wait(20000);
         }
       } else if (readres.error_code == '0' && data.indexOf('"score":0') > -1 && readres.items.score == 0) {
-        console.log(`\n本次阅读获得0个青豆，等待1s即将开始下次阅读\n`);
+        console.log(`\n本次阅读获得0个青豆，等待10s即将开始下次阅读\n`);
       } else if (readres.success == false) {
         console.log(`第${$.index}次阅读请求有误，请删除此请求`)
       } else if (readres.items.max_notice == '\u770b\u592a\u4e45\u4e86\uff0c\u63621\u7bc7\u8bd5\u8bd5') {
@@ -128,7 +131,7 @@ function batHost(api, body) {
 }
 
 function readTime() {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
         $.post(batHost('user/stay.json',timebodyVal), (error, resp, data) => {
             let timeres = JSON.parse(data)
             if (timeres.error_code == 0) {
@@ -141,8 +144,8 @@ function readTime() {
 }
 
 function Getbody() {
-  if ($request && $request.method != `OPTIONS` && $request.url.match(/\/article\/complete/)) {
-    bodyVal = $request.body;
+  if ($request && $request.method != `OPTIONS` && $request.url.match(/\/article\/info\/get/)) {
+    bodyVal = $request.url.split("?")[1];
     if (YouthBody) {
       if (YouthBody.indexOf(bodyVal) > -1) {
         $.log("此阅读请求已存在，本次跳过")
